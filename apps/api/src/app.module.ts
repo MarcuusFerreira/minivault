@@ -4,6 +4,7 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { type Env, envSchema } from './config/env.js';
 import { IdentityAccessModule } from './modules/identity-access/identity-access.module.js';
+import { ProjectManagementModule } from './modules/project-management/project-management.module.js';
 import { HealthController } from './shared/infrastructure/health/health.controller.js';
 import { AuthGuard } from './shared/infrastructure/http/auth/auth.guard.js';
 import { ErrorFilter } from './shared/infrastructure/http/error.filter.js';
@@ -20,6 +21,7 @@ import { SharedKernelModule } from './shared/infrastructure/shared-kernel.module
     }),
     SharedKernelModule,
     IdentityAccessModule,
+    ProjectManagementModule,
   ],
   controllers: [HealthController],
   providers: [
