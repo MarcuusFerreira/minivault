@@ -1,23 +1,39 @@
+@import '@fontsource-variable/instrument-sans/index.css';
 @import '@fontsource/ibm-plex-mono/400.css';
 @import '@fontsource/ibm-plex-mono/500.css';
-@import '@fontsource/ibm-plex-mono/600.css';
 @import 'tailwindcss';
 
 /*
- * Industrial: warm-black, one monospace family, 1px borders, no radius, no shadows.
- * The signal color has one meaning: plaintext is on screen. Nothing else may use it.
+ * Slate surfaces separated by tone rather than lines, soft corners, and a monospaced face
+ * only for code. The signal color has one meaning: plaintext is on screen.
  */
 @theme {
-  --font-sans: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-sans: 'Instrument Sans Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
-  --radius: 0;
-  --color-ground: #0b0c0a;
-  --color-raised: #131411;
-  --color-line: #2c2e28;
-  --color-line-strong: #6b6e64;
-  --color-ink: #ecece6;
-  --color-dim: #a3a59b;
-  --color-signal: #ffb800;
+  --color-ground: #12151b;
+  --color-sheet: #191d25;
+  --color-raised: #222731;
+  --color-hover: #2a303c;
+  --color-line: #2b313d;
+  --color-line-strong: #6f7889;
+  --color-ink: #eef1f6;
+  --color-dim: #a2abbb;
+  --color-signal: #ffb84d;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --shadow-float: 0 1px 0 0 rgb(255 255 255 / 0.05) inset, 0 16px 48px -12px rgb(0 0 0 / 0.6);
+  --animate-appear: appear 120ms ease 150ms backwards;
+  --animate-deplete: deplete 30s linear forwards;
+
+  @keyframes deplete {
+    to {
+      transform: scaleX(0);
+    }
+  }
+  @keyframes appear {
+    from {
+      opacity: 0;
+    }
+  }
 }
 
 @layer base {
@@ -30,9 +46,23 @@
     color: var(--color-ink);
     background: var(--color-ground);
     font-family: var(--font-sans);
-    font-size: 14px;
-    line-height: 1.6;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  time,
+  td {
     font-variant-numeric: tabular-nums;
+  }
+  h1,
+  h2 {
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+  ::selection {
+    background: var(--color-ink);
+    color: var(--color-ground);
   }
   :focus-visible {
     outline: 2px solid var(--color-ink);
@@ -43,11 +73,12 @@
     cursor: pointer;
   }
   @media (prefers-reduced-motion: reduce) {
+    /* Gentler, not zero: color and opacity still explain changes; nothing moves. */
     *,
     ::before,
     ::after {
-      animation: none !important;
-      transition: none !important;
+      animation-iteration-count: 1 !important;
+      transition-property: color, background-color, border-color, opacity !important;
     }
   }
 }

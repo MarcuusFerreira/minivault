@@ -14,17 +14,17 @@ export function Field({ label, hint, error, children }: Props) {
   const note = error ?? hint;
   return (
     <div className="grid gap-1.5">
-      <label htmlFor={id} className="font-medium">
+      <label htmlFor={id} className="text-sm font-medium">
         {label}
       </label>
       {cloneElement(children, { id, 'aria-invalid': Boolean(error), ...(note ? { 'aria-describedby': noteId } : {}) })}
       {error ? (
-        <p id={noteId} className="flex items-start gap-2">
+        <p id={noteId} className="flex items-start gap-2 text-sm">
           <CircleAlert aria-hidden className="mt-1 size-4 shrink-0" />
           {error}
         </p>
       ) : hint ? (
-        <p id={noteId} className="text-dim">
+        <p id={noteId} className="text-sm text-dim">
           {hint}
         </p>
       ) : null}
@@ -35,7 +35,7 @@ export function Field({ label, hint, error, children }: Props) {
 /** Errors are inverted rather than colored: the only color on screen means plaintext. */
 export function FormError({ children }: { children: string | undefined }) {
   return children ? (
-    <p role="alert" className="flex items-start gap-2 bg-ink px-3 py-2 text-ground">
+    <p role="alert" className="flex items-start gap-2 rounded-2xl bg-ink px-4 py-2.5 text-ground">
       <CircleAlert aria-hidden className="mt-1 size-4 shrink-0" />
       {children}
     </p>

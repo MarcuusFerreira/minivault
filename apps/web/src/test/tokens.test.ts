@@ -6,17 +6,13 @@ const sources = readdirSync('src', { recursive: true, encoding: 'utf8' })
   .filter((f) => f.endsWith('.tsx') && !f.includes('test'))
   .map((f) => [f, readFileSync(`src/${f}`, 'utf8')] as const);
 
-it('holds the Industrial tokens', () => {
-  expect(css).toContain('#0b0c0a');
-  expect(css).toContain('--color-signal: #ffb800');
-  expect(css).toContain("'IBM Plex Mono'");
-  expect(css).not.toMatch(/box-shadow:(?!\s*none)/);
-  expect(css).toContain('--radius: 0');
+it('uses a proportional face for the interface and a monospaced one for code', () => {
+  expect(css).toMatch(/--font-sans: 'Instrument Sans Variable'/);
+  expect(css).toMatch(/--font-mono: 'IBM Plex Mono'/);
+  expect(css).toContain('--color-signal: #ffb84d');
 });
 
-it.each(sources)('%s adds no radius, shadow or hue of its own', (_file, source) => {
-  expect(source).not.toMatch(/\brounded(?!-none)/);
-  expect(source).not.toMatch(/\bshadow-/);
+it.each(sources)('%s adds no hue of its own', (_file, source) => {
   expect(source).not.toMatch(/\b(?:text|bg|border)-(?:red|green|blue|yellow|amber|orange|purple|pink|emerald|sky)-/);
 });
 

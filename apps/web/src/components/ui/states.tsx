@@ -5,7 +5,7 @@ import { Button } from './button';
 
 export function EmptyState({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <div className="grid justify-items-start gap-3 border border-dashed border-line-strong p-6">
+    <div className="grid justify-items-start gap-3 rounded-2xl bg-raised/60 p-7">
       <p className="font-medium">{title}</p>
       {children}
     </div>
@@ -15,7 +15,7 @@ export function EmptyState({ title, children }: { title: string; children?: Reac
 export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
   const reference = error instanceof ApiError ? error.correlationId : undefined;
   return (
-    <div role="alert" className="grid justify-items-start gap-3 border border-ink p-6">
+    <div role="alert" className="grid justify-items-start gap-3 rounded-2xl border border-ink p-6">
       <p className="flex items-center gap-2 font-medium">
         <CircleAlert aria-hidden className="size-4 shrink-0" />
         {errorMessage(error)}
@@ -34,11 +34,9 @@ const ROWS = [0, 1, 2];
 
 export function LoadingRows({ label }: { label: string }) {
   return (
-    <div role="status" aria-label={label} className="border border-line">
+    <div role="status" aria-label={label} className="grid animate-appear gap-3">
       {ROWS.map((row) => (
-        <div key={row} className="border-b border-line p-4 last:border-b-0">
-          <div className="h-4 w-1/3 animate-pulse bg-line" />
-        </div>
+        <div key={row} className="h-12 animate-pulse rounded-2xl bg-raised" />
       ))}
     </div>
   );
