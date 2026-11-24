@@ -6,6 +6,8 @@ export const REVEAL_TTL_MS = 30_000;
 interface RevealedSecrets {
   values: ReadonlyMap<string, string>;
   count: number;
+  /** When the first value on screen will be hidden, or null when there is none. */
+  nextExpiry: number | null;
   /** Call before fetching. The returned function does nothing if everything was hidden meanwhile. */
   beginReveal: () => (id: string, value: string) => void;
   hide: (id: string) => void;
@@ -13,7 +15,11 @@ interface RevealedSecrets {
 }
 
 const Context = createContext<RevealedSecrets | null>(null);
-const NONE: ReadonlyMap<string, string> = new Map();
+interface Revealed {
+  value: string;
+  expiresAt: number;
+}
+const NONE: ReadonlyMap<string, Revealed> = new Map();
 
 /**
  * The only place plaintext is kept, in component state. It is emptied when the page
@@ -21,14 +27,14 @@ const NONE: ReadonlyMap<string, string> = new Map();
  */
 export function RevealedSecretsProvider({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
-  const [values, setValues] = useState(NONE);
+  const [entries, setEntries] = useState(NONE);
   const generation = useRef(0);
   const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 
   const hide = useCallback((id: string) => {
     clearTimeout(timers.current.get(id));
     timers.current.delete(id);
-    setValues((current) => {
+    setEntries((current) => {
       if (!current.has(id)) return current;
       const next = new Map(current);
       next.delete(id);
@@ -40,16 +46,17 @@ export function RevealedSecretsProvider({ children }: { children: ReactNode }) {
     generation.current += 1;
     timers.current.forEach((timer) => clearTimeout(timer));
     timers.current.clear();
-    setValues(NONE);
+    setEntries(NONE);
   }, []);
 
   const beginReveal = useCallback(() => {
     const startedIn = generation.current;
     return (id: string, value: string) => {
       if (startedIn !== generation.current) return;
+      const expiresAt = Date.now() + REVEAL_TTL_MS;
       clearTimeout(timers.current.get(id));
       timers.current.set(id, setTimeout(() => hide(id), REVEAL_TTL_MS));
-      setValues((current) => new Map(current).set(id, value));
+      setEntries((current) => new Map(current).set(id, { value, expiresAt }));
     };
   }, [hide]);
 
@@ -64,8 +71,15 @@ export function RevealedSecretsProvider({ children }: { children: ReactNode }) {
   }, [hideAll]);
 
   const context = useMemo(
-    () => ({ values, count: values.size, beginReveal, hide, hideAll }),
-    [values, beginReveal, hide, hideAll],
+    () => ({
+      values: new Map([...entries].map(([id, { value }]) => [id, value])),
+      count: entries.size,
+      nextExpiry: entries.size === 0 ? null : Math.min(...[...entries.values()].map(({ expiresAt }) => expiresAt)),
+      beginReveal,
+      hide,
+      hideAll,
+    }),
+    [entries, beginReveal, hide, hideAll],
   );
   return <Context value={context}>{children}</Context>;
 }

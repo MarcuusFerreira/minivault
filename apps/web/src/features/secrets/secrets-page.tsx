@@ -1,7 +1,7 @@
 import type { EnvironmentResponse, SecretMetadataResponse, SecretValueResponse } from '@minivault/contracts';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Copy, Eye, EyeOff, Pencil, Plus, Trash2 } from 'lucide-react';
-import { useDeferredValue, useState } from 'react';
+import { Check, Copy, Eye, EyeOff, LoaderCircle, Pencil, Plus, Trash2 } from 'lucide-react';
+import { useDeferredValue, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
@@ -17,6 +17,8 @@ import { SecretFormDialog } from './secret-form-dialog';
 
 /** Constant, so it says nothing about the value's length. */
 const MASK = '••••••••';
+const COPIED_MS = 1500;
+const NOTHING: ReadonlySet<string> = new Set();
 
 export function Component() {
   const { projectId = '', environmentName = '' } = useParams();
@@ -42,9 +44,17 @@ function EnvironmentSecrets({ projectId, environment }: { projectId: string; env
   const [dialog, setDialog] = useState<DialogState>(null);
   const [failure, setFailure] = useState<string>();
   const [notice, setNotice] = useState('');
+  const [copiedId, setCopiedId] = useState<string>();
+  const [revealing, setRevealing] = useState<ReadonlySet<string>>(NOTHING);
   const term = useDeferredValue(search).trim().toUpperCase();
   const matches = term ? data?.filter(({ key }) => key.includes(term)) : data;
   const close = () => setDialog(null);
+
+  useEffect(() => {
+    if (copiedId === undefined) return;
+    const timer = setTimeout(() => setCopiedId(undefined), COPIED_MS);
+    return () => clearTimeout(timer);
+  }, [copiedId]);
 
   async function refresh() {
     await Promise.all([
@@ -60,7 +70,9 @@ function EnvironmentSecrets({ projectId, environment }: { projectId: string; env
       revealed.hide(secret.id);
       return;
     }
+    if (revealing.has(secret.id)) return;
     setFailure(undefined);
+    setRevealing((current) => new Set(current).add(secret.id));
     const show = revealed.beginReveal();
     try {
       show(secret.id, await read(secret));
@@ -68,6 +80,7 @@ function EnvironmentSecrets({ projectId, environment }: { projectId: string; env
     } catch (problem) {
       setFailure(errorMessage(problem));
     }
+    setRevealing((current) => new Set([...current].filter((id) => id !== secret.id)));
   }
 
   async function copy(secret: SecretMetadataResponse) {
@@ -83,6 +96,7 @@ function EnvironmentSecrets({ projectId, environment }: { projectId: string; env
     try {
       await navigator.clipboard.writeText(value);
       setNotice(`Copied ${secret.key}.`);
+      setCopiedId(secret.id);
     } catch {
       setFailure(`${secret.key} could not be copied. Allow clipboard access and try again.`);
     }
@@ -116,36 +130,38 @@ function EnvironmentSecrets({ projectId, environment }: { projectId: string; env
       ) : matches.length === 0 ? (
         <EmptyState title={term ? 'No secret matches your search.' : `${environment.name} has no secrets yet.`} />
       ) : (
-        <div className="overflow-x-auto border border-line">
+        <div className="-mx-4 overflow-x-auto">
           <table className="w-full min-w-2xl text-left">
-            <thead className="border-b border-line text-dim">
+            <thead className="text-sm text-dim">
               <tr>
-                <th className="p-4 font-medium">Key</th>
-                <th className="p-4 font-medium">Value</th>
-                <th className="p-4 font-medium">Updated</th>
-                <th className="p-4 text-right font-medium">Actions</th>
+                <th className="px-4 py-2 font-medium">Key</th>
+                <th className="px-4 py-2 font-medium">Value</th>
+                <th className="px-4 py-2 font-medium">Updated</th>
+                <th className="px-4 py-2 text-right font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
               {matches.map((secret) => {
                 const value = revealed.values.get(secret.id);
                 const shown = value !== undefined;
+                const busy = revealing.has(secret.id);
+                const copied = copiedId === secret.id;
                 return (
-                  <tr key={secret.id} className="border-b border-line align-top last:border-b-0 hover:bg-raised">
-                    <th scope="row" className="p-4 font-medium break-all">
+                  <tr key={secret.id} className="align-middle">
+                    <th scope="row" className="border-t border-line p-4 font-mono text-sm font-medium break-all">
                       {secret.key}
                     </th>
-                    <td className="w-2/5 p-4">
-                      {shown ? <Plaintext value={value} label={`Value of ${secret.key}`} /> : <span className="text-dim">{MASK}</span>}
+                    <td className="border-t border-line w-2/5 p-4">
+                      {shown ? <Plaintext value={value} label={`Value of ${secret.key}`} /> : <span className="rounded-full bg-raised px-3 py-1 tracking-widest text-dim">{MASK}</span>}
                     </td>
-                    <td className="p-4 whitespace-nowrap text-dim">{formatDateTime(secret.updatedAt)}</td>
-                    <td className="p-2">
+                    <td className="border-t border-line p-4 whitespace-nowrap text-dim">{formatDateTime(secret.updatedAt)}</td>
+                    <td className="border-t border-line p-2">
                       <div className="flex justify-end">
-                        <Button variant="ghost" size="icon" title={shown ? 'Hide' : 'Reveal'} aria-label={`${shown ? 'Hide' : 'Reveal'} ${secret.key}`} onClick={() => void toggle(secret)}>
-                          {shown ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
+                        <Button variant="ghost" size="icon" aria-busy={busy} title={shown ? 'Hide' : 'Reveal'} aria-label={`${shown ? 'Hide' : 'Reveal'} ${secret.key}`} onClick={() => void toggle(secret)}>
+                          {busy ? <LoaderCircle aria-hidden className="animate-spin [animation-duration:700ms]" /> : shown ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
                         </Button>
-                        <Button variant="ghost" size="icon" title="Copy" aria-label={`Copy ${secret.key}`} onClick={() => void copy(secret)}>
-                          <Copy aria-hidden />
+                        <Button variant="ghost" size="icon" title={copied ? 'Copied' : 'Copy'} aria-label={`Copy ${secret.key}`} onClick={() => void copy(secret)}>
+                          {copied ? <Check aria-hidden /> : <Copy aria-hidden />}
                         </Button>
                         <Button variant="ghost" size="icon" title="Edit" aria-label={`Edit ${secret.key}`} onClick={() => setDialog({ kind: 'edit', secret })}>
                           <Pencil aria-hidden />
