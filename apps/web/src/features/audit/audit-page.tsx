@@ -83,9 +83,9 @@ export function Component() {
         <EmptyState title={filtered ? 'No activity matches these filters.' : 'No activity yet.'} />
       ) : (
         groupByDay(entries).map(([day, group]) => (
-          <section key={day} className="grid gap-3">
-            <h2 className="font-semibold">{day}</h2>
-            <ul className="border border-line">
+          <section key={day} className="grid gap-5">
+            <h2 className="text-lg font-semibold">{day}</h2>
+            <ul>
               {group.map((entry) => (
                 <AuditEntryRow key={entry.id} entry={entry} actor={actorName(entry)} project={projectNames.get(entry.projectId)} />
               ))}
