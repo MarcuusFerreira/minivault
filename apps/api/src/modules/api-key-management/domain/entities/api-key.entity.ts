@@ -1,6 +1,7 @@
 import { AggregateRoot } from '../../../../shared/domain/aggregate-root.js';
 import { ApiKeyCreated, ApiKeyRevoked } from '../../../../shared/domain/events/api-key.events.js';
 import type { Grant } from '../../../../shared/domain/principal.js';
+import { isStorableText } from '../../../../shared/domain/text.js';
 import {
   ApiKeyAlreadyRevokedError,
   ApiKeyNotActiveError,
@@ -50,7 +51,7 @@ export class ApiKey extends AggregateRoot {
   static issue(input: IssueInput): ApiKey {
     const { now, hash, grants, ...rest } = input;
     const name = rest.name.trim();
-    if (name.length < 1 || name.length > 100) throw new InvalidApiKeyNameError();
+    if (name.length < 1 || name.length > 100 || !isStorableText(name)) throw new InvalidApiKeyNameError();
     if (rest.expiresAt && !(rest.expiresAt.getTime() > now.getTime())) throw new InvalidApiKeyExpiryError();
     const key = new ApiKey({ ...rest, name, lastUsedAt: null, revokedAt: null, createdAt: now }, hash, EnvironmentGrants.create(grants));
     key.record(new ApiKeyCreated(...key.eventDetails(now)));

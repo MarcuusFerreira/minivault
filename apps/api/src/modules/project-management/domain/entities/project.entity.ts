@@ -1,5 +1,6 @@
 import { AggregateRoot } from '../../../../shared/domain/aggregate-root.js';
 import { ProjectCreated, ProjectDeleted, ProjectUpdated } from '../../../../shared/domain/events/project.events.js';
+import { isStorableText } from '../../../../shared/domain/text.js';
 import { InvalidProjectDescriptionError } from '../exceptions/project.errors.js';
 import { ProjectName } from '../value-objects/project-name.vo.js';
 
@@ -68,6 +69,6 @@ export class Project extends AggregateRoot {
 
 function validDescription(raw: string): string {
   const value = raw.trim();
-  if (value.length > 500) throw new InvalidProjectDescriptionError();
+  if (value.length > 500 || !isStorableText(value)) throw new InvalidProjectDescriptionError();
   return value;
 }

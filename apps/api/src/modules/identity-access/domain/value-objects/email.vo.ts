@@ -1,3 +1,4 @@
+import { isStorableText } from '../../../../shared/domain/text.js';
 import { InvalidEmailError } from '../exceptions/identity.errors.js';
 
 const SHAPE = /^[^\s@]+@[^\s@]+$/;
@@ -8,7 +9,7 @@ export class Email {
 
   static create(raw: string): Email {
     const value = raw.trim().toLowerCase();
-    if (value.length > MAX_LENGTH || !SHAPE.test(value)) throw new InvalidEmailError();
+    if (value.length > MAX_LENGTH || !isStorableText(value) || !SHAPE.test(value)) throw new InvalidEmailError();
     return new Email(value);
   }
 }

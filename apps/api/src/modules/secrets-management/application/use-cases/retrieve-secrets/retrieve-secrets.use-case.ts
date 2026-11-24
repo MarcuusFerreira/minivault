@@ -4,6 +4,7 @@ import type { UnitOfWork } from '../../../../../shared/application/unit-of-work.
 import { actorOf } from '../../../../../shared/domain/principal.js';
 import type { Secret } from '../../../domain/entities/secret.entity.js';
 import type { SecretRepository } from '../../../domain/repositories/secret.repository.js';
+import { SecretKey } from '../../../domain/value-objects/secret-key.vo.js';
 import { type RevealedSecret, toSecretMetadata } from '../../dto/secret-view.js';
 import type { RetrieveSecretsInput, RetrieveSecretsPort } from '../../ports/input/retrieve-secrets.port.js';
 import type { EncryptionPort } from '../../ports/output/encryption.port.js';
@@ -27,7 +28,7 @@ export class RetrieveSecretsUseCase implements RetrieveSecretsPort {
   async execute(input: RetrieveSecretsInput): Promise<RevealedSecret[]> {
     const { context } = input;
     await this.policy.assert(context, input, 'SECRETS_READ');
-    const keys = input.keys && [...new Set(input.keys)];
+    const keys = input.keys && [...new Set(input.keys.map((key) => SecretKey.create(key).value))];
     if (keys && keys.length > LIMIT) throw tooManySecrets(LIMIT);
     const secrets = await this.secrets.findByKeys(input, keys, LIMIT + 1);
     if (secrets.length > LIMIT) throw tooManySecrets(LIMIT);

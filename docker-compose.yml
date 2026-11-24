@@ -66,6 +66,18 @@ services:
       retries: 20
     restart: unless-stopped
 
+  seed:
+    profiles: [demo]
+    build: { context: ., dockerfile: apps/api/Dockerfile }
+    command: [node, dist/seed.js]
+    environment:
+      <<: *api-environment
+      DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:-}
+    depends_on:
+      api: { condition: service_healthy }
+    networks: [data, crypto]
+    restart: "no"
+
   web:
     build: { context: ., dockerfile: apps/web/Dockerfile }
     ports: ["${WEB_PORT:-8080}:8080"]

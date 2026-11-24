@@ -1,4 +1,5 @@
 import { AggregateRoot } from '../../../../shared/domain/aggregate-root.js';
+import { isStorableText } from '../../../../shared/domain/text.js';
 import { InvalidUserNameError } from '../exceptions/identity.errors.js';
 import { Email } from '../value-objects/email.vo.js';
 
@@ -28,7 +29,7 @@ export class User extends AggregateRoot {
 
   static register(input: { id: string; name: string; email: Email; passwordHash: string; now: Date }): User {
     const name = input.name.trim();
-    if (name.length < 1 || name.length > 100) throw new InvalidUserNameError();
+    if (name.length < 1 || name.length > 100 || !isStorableText(name)) throw new InvalidUserNameError();
     return new User(input.id, name, input.email, input.passwordHash, input.now, input.now);
   }
 

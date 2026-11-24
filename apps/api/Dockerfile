@@ -21,7 +21,13 @@ COPY package.json package-lock.json ./
 COPY packages/contracts/package.json packages/contracts/
 COPY apps/api/package.json apps/api/
 COPY apps/web/package.json apps/web/
-RUN npm ci --omit=dev -w packages/contracts -w apps/api
+# npm installs the Prisma CLI as an optional peer of @prisma/client. The runtime needs neither
+# it nor what it pulls in, so they are removed rather than shipped.
+RUN npm ci --omit=dev -w packages/contracts -w apps/api \
+  && cd node_modules \
+  && rm -rf prisma effect typescript \
+    @prisma/config @prisma/dev @prisma/engines @prisma/engines-version @prisma/fetch-engine \
+    @prisma/get-platform @prisma/query-plan-executor @prisma/streams-local @prisma/studio-core
 
 FROM node:24-alpine
 ENV NODE_ENV=production
