@@ -35,7 +35,7 @@ export function Component() {
   return (
     <AuthLayout title="Sign in">
       {expired && !errors.root ? (
-        <p role="status" className="border border-ink px-3 py-2">
+        <p role="status" className="rounded-2xl bg-raised px-4 py-2.5">
           Your session expired. Sign in again.
         </p>
       ) : null}

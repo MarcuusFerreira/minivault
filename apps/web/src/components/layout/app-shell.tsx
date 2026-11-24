@@ -7,6 +7,7 @@ import { ExposureIndicator } from '@/features/secrets/exposure-indicator';
 import { RevealedSecretsProvider } from '@/features/secrets/revealed-secrets-context';
 import { cn } from '@/lib/utils';
 import { errorMessage } from '@/services/api-client';
+import { Mark } from './mark';
 
 const NAVIGATION = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -16,8 +17,8 @@ const NAVIGATION = [
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    'flex items-center gap-3 border px-3 py-2',
-    isActive ? 'border-line-strong bg-raised text-ink' : 'border-transparent text-dim hover:text-ink',
+    'flex items-center gap-3 rounded-full px-4 py-2 font-medium whitespace-nowrap',
+    isActive ? 'bg-raised text-ink' : 'text-dim hover:text-ink',
   );
 
 export function AppShell() {
@@ -34,22 +35,28 @@ export function AppShell() {
 
   return (
     <RevealedSecretsProvider>
-      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-ink focus:p-3 focus:text-ground">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:m-2 focus:rounded-full focus:bg-ink focus:px-5 focus:py-2 focus:text-ground"
+      >
         Skip to content
       </a>
-      <div className="grid min-h-dvh grid-rows-[auto_1fr] md:grid-cols-[15rem_1fr] md:grid-rows-1">
-        <aside className="flex flex-col border-b border-line md:sticky md:top-0 md:h-dvh md:border-r md:border-b-0">
-          <p className="border-b border-line px-5 py-4 font-semibold">MiniVault</p>
-          <nav aria-label="Main" className="flex flex-wrap gap-1 p-2 md:flex-col">
+      <div className="grid min-h-dvh grid-rows-[auto_1fr] md:grid-cols-[14.5rem_1fr] md:grid-rows-1">
+        <aside className="grid grid-cols-[1fr_auto] gap-y-2 p-3 md:sticky md:top-0 md:flex md:h-dvh md:flex-col md:gap-6 md:p-4">
+          <p className="flex items-center gap-2.5 px-3 py-2 text-lg font-semibold tracking-tight">
+            <Mark />
+            MiniVault
+          </p>
+          <nav aria-label="Main" className="order-last col-span-2 flex gap-1 overflow-x-auto md:order-none md:flex-col">
             {NAVIGATION.map(({ to, label, icon: Icon }) => (
               <NavLink key={to} to={to} end={to === '/'} className={linkClass}>
-                <Icon aria-hidden className="size-4 shrink-0" />
+                <Icon aria-hidden className="size-4 shrink-0 max-md:hidden" />
                 {label}
               </NavLink>
             ))}
           </nav>
-          <div className="mt-auto flex items-center justify-between gap-2 border-t border-line px-3 py-2">
-            <span className="min-w-0 truncate px-2 text-dim" title={user?.email}>
+          <div className="flex items-center justify-between gap-2 pl-4 md:mt-auto">
+            <span className="min-w-0 truncate text-sm text-dim max-md:hidden" title={user?.email}>
               {user?.email}
             </span>
             <Button variant="ghost" size="icon" aria-label="Sign out" title="Sign out" onClick={() => void signOut()}>
@@ -57,20 +64,24 @@ export function AppShell() {
             </Button>
           </div>
         </aside>
-        <div className="min-w-0">
-          <header className="max-md:not-has-[button]:sr-only sticky top-0 z-30 flex min-h-13 items-center justify-end border-b border-line bg-ground px-4 py-2 md:px-8">
-            <ExposureIndicator />
-          </header>
-          <main id="main" tabIndex={-1} className="mx-auto grid max-w-6xl gap-8 p-4 outline-none md:p-8">
-            {failure ? (
-              <p role="alert" className="bg-ink px-3 py-2 text-ground">
-                {failure}
-              </p>
-            ) : null}
-            <Outlet />
+        <div className="min-w-0 md:py-3 md:pr-3">
+          <main
+            id="main"
+            tabIndex={-1}
+            className="min-h-full bg-sheet px-5 py-8 pb-24 outline-none max-md:rounded-t-3xl md:rounded-3xl md:px-12 md:py-11"
+          >
+            <div className="mx-auto grid max-w-5xl gap-9">
+              {failure ? (
+                <p role="alert" className="rounded-2xl bg-ink px-4 py-3 text-ground">
+                  {failure}
+                </p>
+              ) : null}
+              <Outlet />
+            </div>
           </main>
         </div>
       </div>
+      <ExposureIndicator />
     </RevealedSecretsProvider>
   );
 }
