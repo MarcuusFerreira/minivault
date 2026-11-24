@@ -69,15 +69,15 @@ export function GenerateApiKeyForm({ projectId, environments, onCancel, onGenera
         </Select>
       </Field>
       <fieldset className="grid gap-2">
-        <legend className="mb-1.5 font-medium">Permissions</legend>
+        <legend className="mb-1.5 text-sm font-medium">Permissions</legend>
         {environments.map(({ id, name }) => (
-          <div key={id} className="flex flex-wrap items-center gap-x-6 gap-y-1 border border-line px-3 py-2">
-            <span className="min-w-32">{name}</span>
+          <div key={id} className="flex flex-wrap items-center gap-x-6 gap-y-1 rounded-2xl bg-raised px-4 py-2.5">
+            <span className="min-w-36 font-mono text-sm">{name}</span>
             {PERMISSION_ENTRIES.map(([permission, label]) => (
               <label key={permission} className="flex items-center gap-2">
                 <input
                   type="checkbox"
-                  className="size-4 appearance-none border border-line-strong bg-ground checked:border-ink checked:bg-ink checked:bg-[url(/check.svg)] checked:bg-center checked:bg-no-repeat"
+                  className="size-4 appearance-none rounded-[5px] border border-line-strong bg-ground checked:border-ink checked:bg-ink checked:bg-[url(/check.svg)] checked:bg-center checked:bg-no-repeat"
                   aria-label={`${name} ${label}`}
                   value={`${id}:${permission}`}
                   {...register('permissions', { validate: (selected) => selected.length > 0 })}

@@ -33,7 +33,7 @@ export function Component() {
   return (
     <section aria-labelledby="api-keys" className="grid gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="api-keys" className="text-lg font-semibold">
+        <h2 id="api-keys" className="text-xl font-semibold">
           API keys
         </h2>
         <Button disabled={environments.data === undefined} onClick={() => setDialog({ kind: 'generate' })}>
@@ -48,27 +48,27 @@ export function Component() {
       ) : keys.data.length === 0 ? (
         <EmptyState title="This project has no API keys yet." />
       ) : (
-        <div className="overflow-x-auto border border-line">
+        <div className="-mx-4 overflow-x-auto">
           <table className="w-full min-w-3xl text-left">
-            <thead className="border-b border-line text-dim">
+            <thead className="text-sm text-dim">
               <tr>
-                <th className="p-4 font-medium">Name</th>
-                <th className="p-4 font-medium">Status</th>
-                <th className="p-4 font-medium">Permissions</th>
-                <th className="p-4 font-medium">Expires</th>
-                <th className="p-4 font-medium">Last used</th>
-                <th className="p-4 text-right font-medium">Actions</th>
+                <th className="px-4 py-2 font-medium">Name</th>
+                <th className="px-4 py-2 font-medium">Status</th>
+                <th className="px-4 py-2 font-medium">Permissions</th>
+                <th className="px-4 py-2 font-medium">Expires</th>
+                <th className="px-4 py-2 font-medium">Last used</th>
+                <th className="px-4 py-2 text-right font-medium">Actions</th>
               </tr>
             </thead>
             <tbody>
               {keys.data.map((key) => (
-                <tr key={key.id} className="border-b border-line align-top last:border-b-0">
-                  <th scope="row" className="p-4 font-medium">
+                <tr key={key.id} className="align-middle">
+                  <th scope="row" className="border-t border-line p-4 font-medium">
                     <span className="break-all">{key.name}</span>
-                    <span className="block font-normal text-dim">{key.prefix}…</span>
+                    <span className="block font-mono text-sm font-normal text-dim">{key.prefix}…</span>
                   </th>
-                  <td className={key.status === 'active' ? 'p-4' : 'p-4 text-dim'}>{STATUS[key.status]}</td>
-                  <td className="p-4">
+                  <td className={key.status === 'active' ? 'border-t border-line p-4' : 'border-t border-line p-4 text-dim'}>{STATUS[key.status]}</td>
+                  <td className="border-t border-line p-4">
                     {key.grants.length === 0 ? <span className="text-dim">None</span> : null}
                     {key.grants.map(({ environmentId, permissions }) => (
                       <span key={environmentId} className="block">
@@ -76,9 +76,9 @@ export function Component() {
                       </span>
                     ))}
                   </td>
-                  <td className="p-4 whitespace-nowrap">{key.expiresAt ? formatDate(key.expiresAt) : 'No expiry'}</td>
-                  <td className="p-4 whitespace-nowrap">{key.lastUsedAt ? formatDateTime(key.lastUsedAt) : 'Never'}</td>
-                  <td className="p-3">
+                  <td className="border-t border-line p-4 whitespace-nowrap">{key.expiresAt ? formatDate(key.expiresAt) : 'No expiry'}</td>
+                  <td className="border-t border-line p-4 whitespace-nowrap">{key.lastUsedAt ? formatDateTime(key.lastUsedAt) : 'Never'}</td>
+                  <td className="border-t border-line p-3">
                     <div className="flex justify-end gap-2">
                       {key.status === 'active' ? (
                         <Button variant="secondary" size="sm" aria-label={`Rotate ${key.name}`} onClick={() => setDialog({ kind: 'rotate', key })}>

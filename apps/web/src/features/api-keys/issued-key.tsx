@@ -15,11 +15,16 @@ interface Props {
 }
 
 export function IssuedKey({ plaintext, copied, warning, failure, onCopy, onDone, onDiscard }: Props) {
+  const note = failure ?? (warning ? 'You have not copied the key. It cannot be shown again.' : undefined);
   return (
     <div className="grid gap-5">
       <p>This key is shown only once.</p>
       <Plaintext value={plaintext} label="API key" />
-      <FormError>{failure ?? (warning ? 'You have not copied the key. It cannot be shown again.' : undefined)}</FormError>
+      {note === undefined ? null : (
+        <div className="transition-[opacity,translate] duration-200 ease-out starting:opacity-0 motion-safe:starting:-translate-y-1">
+          <FormError>{note}</FormError>
+        </div>
+      )}
       <div className="flex flex-wrap justify-end gap-3">
         <Button variant="secondary" onClick={onCopy}>
           <Copy aria-hidden />
