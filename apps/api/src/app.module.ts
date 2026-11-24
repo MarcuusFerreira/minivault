@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { type Env, envSchema } from './config/env.js';
+import { EnvironmentManagementModule } from './modules/environment-management/environment-management.module.js';
 import { IdentityAccessModule } from './modules/identity-access/identity-access.module.js';
 import { ProjectManagementModule } from './modules/project-management/project-management.module.js';
 import { HealthController } from './shared/infrastructure/health/health.controller.js';
@@ -22,6 +23,7 @@ import { SharedKernelModule } from './shared/infrastructure/shared-kernel.module
     SharedKernelModule,
     IdentityAccessModule,
     ProjectManagementModule,
+    EnvironmentManagementModule,
   ],
   controllers: [HealthController],
   providers: [
