@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, Header, HttpCode, Inject, Param, Post } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { type ApiKeyResponse, type CreateApiKeyRequest, type CreatedApiKeyResponse, createApiKeyRequest } from '@minivault/contracts';
 import type { RequestContext } from '../../../../../../shared/domain/principal.js';
 import { Ctx } from '../../../../../../shared/infrastructure/http/auth/request-context.decorator.js';
@@ -21,6 +22,7 @@ const toResponse = (view: ApiKeyView): ApiKeyResponse => ({
   createdAt: view.createdAt.toISOString(),
 });
 
+@ApiBearerAuth()
 @Controller('projects/:projectId/api-keys')
 export class ApiKeysController {
   constructor(

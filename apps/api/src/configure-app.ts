@@ -1,9 +1,11 @@
 import { StandardSchemaValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { NestExpressApplication } from '@nestjs/platform-express';
+import { SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import type { Env } from './config/env.js';
+import { createOpenApiDocument } from './openapi.js';
 import { correlationId } from './shared/infrastructure/http/correlation-id.middleware.js';
 import { requestLogger } from './shared/infrastructure/http/request-logger.middleware.js';
 
@@ -18,4 +20,5 @@ export function configureApp(app: NestExpressApplication): void {
   app.useBodyParser('json', { limit: '256kb' });
   app.setGlobalPrefix('api/v1', { exclude: ['health', 'ready'] });
   app.useGlobalPipes(new StandardSchemaValidationPipe());
+  SwaggerModule.setup('api/docs', app, () => createOpenApiDocument(app));
 }

@@ -1,4 +1,5 @@
 import { Controller, Get, Inject, Query } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { type AuditLogPage, type AuditLogQuery, type AuditLogResponse, auditLogQuery } from '@minivault/contracts';
 import type { RequestContext } from '../../../../../../shared/domain/principal.js';
 import { Ctx } from '../../../../../../shared/infrastructure/http/auth/request-context.decorator.js';
@@ -17,6 +18,7 @@ function toResponse({ userId, metadata, createdAt, ...entry }: View): AuditLogRe
   };
 }
 
+@ApiBearerAuth()
 @Controller('audit-logs')
 export class AuditLogsController {
   constructor(@Inject(LIST_AUDIT_LOGS) private readonly listAuditLogs: ListAuditLogsPort) {}

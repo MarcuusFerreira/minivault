@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Patch, Post } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import {
   type CreateProjectRequest,
   type ProjectResponse,
@@ -22,6 +23,7 @@ const toResponse = (view: ProjectView): ProjectResponse => ({
   updatedAt: view.updatedAt.toISOString(),
 });
 
+@ApiBearerAuth()
 @Controller('projects')
 export class ProjectsController {
   constructor(

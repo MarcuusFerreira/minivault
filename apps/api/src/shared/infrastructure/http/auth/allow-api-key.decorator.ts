@@ -1,6 +1,12 @@
-import { SetMetadata } from '@nestjs/common';
+import { SetMetadata, applyDecorators } from '@nestjs/common';
+import { ApiBearerAuth, ApiSecurity } from '@nestjs/swagger';
 
 export const API_KEY_ACCESS = 'minivault:api-key-access';
 export type ApiKeyAccess = 'allowed' | 'only';
 /** Opens a route to API keys. Without it, API keys are refused. */
-export const AllowApiKey = (access: ApiKeyAccess = 'allowed') => SetMetadata(API_KEY_ACCESS, access);
+export const AllowApiKey = (access: ApiKeyAccess = 'allowed') =>
+  applyDecorators(
+    SetMetadata(API_KEY_ACCESS, access),
+    ApiSecurity('apiKey'),
+    ...(access === 'allowed' ? [ApiBearerAuth()] : []),
+  );

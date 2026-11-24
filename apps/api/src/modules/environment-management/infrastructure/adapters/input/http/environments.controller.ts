@@ -1,4 +1,5 @@
 import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Post } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { type CreateEnvironmentRequest, type EnvironmentResponse, createEnvironmentRequest } from '@minivault/contracts';
 import type { RequestContext } from '../../../../../../shared/domain/principal.js';
 import { Ctx } from '../../../../../../shared/infrastructure/http/auth/request-context.decorator.js';
@@ -11,6 +12,7 @@ import { LIST_ENVIRONMENTS, type ListEnvironmentsPort } from '../../../../applic
 
 const toResponse = (view: EnvironmentView): EnvironmentResponse => ({ ...view, createdAt: view.createdAt.toISOString() });
 
+@ApiBearerAuth()
 @Controller('projects/:projectId/environments')
 export class EnvironmentsController {
   constructor(

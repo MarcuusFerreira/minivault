@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Header, HttpCode, Inject, Post, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import {
   type LoginRequest,
@@ -73,6 +74,7 @@ export class AuthController {
     res.clearCookie(SESSION_COOKIE, this.cookieOptions());
   }
 
+  @ApiBearerAuth()
   @Get('me')
   async me(@Ctx() context: RequestContext): Promise<UserResponse> {
     if (context.principal.kind !== 'user') {

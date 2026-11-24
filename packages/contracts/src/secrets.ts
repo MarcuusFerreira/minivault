@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { environmentName } from './environments.js';
 
 export const SECRET_KEY_PATTERN = /^[A-Z_][A-Z0-9_]{0,127}$/;
 export const SECRET_VALUE_MAX_BYTES = 32768;
@@ -26,3 +27,11 @@ export interface SecretMetadataResponse {
   updatedAt: string;
 }
 export type SecretValueResponse = SecretMetadataResponse & { value: string };
+
+export const machineSecretsQuery = z.strictObject({ environment: environmentName });
+export type MachineSecretsQuery = z.infer<typeof machineSecretsQuery>;
+
+export interface MachineSecretsResponse {
+  environment: string;
+  secrets: Record<string, string>;
+}
