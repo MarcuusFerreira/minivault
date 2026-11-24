@@ -37,24 +37,24 @@ export function Component() {
 
   return (
     <section aria-labelledby="environments" className="grid gap-4">
-      <h2 id="environments" className="text-lg font-semibold">
+      <h2 id="environments" className="text-xl font-semibold">
         Environments
       </h2>
       <FormError>{create.isError ? errorMessage(create.error) : undefined}</FormError>
-      <ul className="border border-line">
+      <ul className="grid gap-2">
         {ENVIRONMENT_NAMES.map((name) => {
           const environment = byName.get(name);
           return (
-            <li key={name} className="flex flex-wrap items-center justify-between gap-3 border-b border-line p-4 last:border-b-0">
+            <li key={name} className="relative flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-raised/60 px-5 py-4 transition-colors duration-150 has-[a]:hover:bg-raised">
               {environment ? (
                 <>
                   <div>
-                    <Link className="font-medium underline-offset-4 hover:underline" to={name}>
+                    <Link className="font-mono text-sm font-medium after:absolute after:inset-0 after:rounded-2xl" to={name}>
                       {name}
                     </Link>
-                    <p className="text-dim">Created {formatDate(environment.createdAt)}</p>
+                    <p className="text-sm text-dim">Created {formatDate(environment.createdAt)}</p>
                   </div>
-                  <Button variant="secondary" size="sm" aria-label={`Delete ${name}`} onClick={() => setDeleting(environment)}>
+                  <Button className="relative" variant="ghost" size="sm" aria-label={`Delete ${name}`} onClick={() => setDeleting(environment)}>
                     Delete
                   </Button>
                 </>

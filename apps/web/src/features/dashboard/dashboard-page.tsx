@@ -44,33 +44,28 @@ export function Component() {
         </EmptyState>
       ) : (
         <>
-          <div className="grid border border-line sm:grid-cols-3">
+          <div className="flex flex-wrap gap-x-8 gap-y-3">
             {totals(projects.data).map(([label, count]) => (
-              <div
-                key={label}
-                role="group"
-                aria-label={label}
-                className="border-b border-line p-5 last:border-b-0 sm:border-r sm:border-b-0 sm:last:border-r-0"
-              >
-                <p className="text-4xl font-semibold">{count}</p>
-                <p className="text-dim">{label}</p>
+              <div key={label} role="group" aria-label={label} className="flex items-baseline gap-2">
+                <p className="text-3xl font-semibold">{count}</p>
+                <p className="text-dim">{count === 1 ? label.slice(0, -1) : label}</p>
               </div>
             ))}
           </div>
-          <section aria-labelledby="dashboard-projects" className="grid gap-3">
-            <h2 id="dashboard-projects" className="text-lg font-semibold">
+          <section aria-labelledby="dashboard-projects" className="grid gap-5">
+            <h2 id="dashboard-projects" className="text-xl font-semibold">
               Projects
             </h2>
             <ProjectList projects={projects.data.slice(0, 5)} />
           </section>
         </>
       )}
-      <section aria-labelledby="recent-activity" className="grid gap-3">
+      <section aria-labelledby="recent-activity" className="grid gap-5">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <h2 id="recent-activity" className="text-lg font-semibold">
+          <h2 id="recent-activity" className="text-xl font-semibold">
             Recent activity
           </h2>
-          <Link className="underline underline-offset-4" to="/audit">
+          <Link className="text-sm text-dim underline underline-offset-4 hover:text-ink" to="/audit">
             View all activity
           </Link>
         </div>
@@ -81,7 +76,7 @@ export function Component() {
         ) : entries.length === 0 ? (
           <EmptyState title="No activity yet." />
         ) : (
-          <ul className="border border-line">
+          <ul>
             {entries.map((entry) => (
               <AuditEntryRow key={entry.id} entry={entry} actor={actorName(entry)} project={projectNames.get(entry.projectId)} />
             ))}

@@ -4,19 +4,24 @@ import { plural } from '@/lib/format';
 
 export function ProjectList({ projects }: { projects: ProjectResponse[] }) {
   return (
-    <ul className="border border-line">
+    <ul className="grid gap-3 sm:grid-cols-2">
       {projects.map((project) => (
         <li
           key={project.id}
-          className="relative grid gap-1 border-b border-line p-4 last:border-b-0 hover:bg-raised sm:grid-cols-[1fr_auto] sm:gap-6"
+          className="relative grid content-between gap-6 rounded-3xl bg-raised/60 p-5 transition-colors duration-150 hover:bg-raised"
         >
-          <div className="min-w-0">
-            <Link to={`/projects/${project.id}`} className="font-medium break-words underline-offset-4 after:absolute after:inset-0 hover:underline">
-              {project.name}
-            </Link>
-            {project.description ? <p className="truncate text-dim">{project.description}</p> : null}
+          <div className="flex min-w-0 items-start gap-4">
+            <span aria-hidden className="grid size-11 shrink-0 place-items-center rounded-2xl bg-hover text-lg font-semibold">
+              {[...project.name][0]?.toUpperCase()}
+            </span>
+            <div className="min-w-0">
+              <Link to={`/projects/${project.id}`} className="font-semibold break-words after:absolute after:inset-0 after:rounded-3xl">
+                {project.name}
+              </Link>
+              {project.description ? <p className="line-clamp-2 text-sm text-dim">{project.description}</p> : null}
+            </div>
           </div>
-          <p className="text-dim">
+          <p className="text-sm text-dim">
             {plural(project.environmentCount, 'environment')}, {plural(project.secretCount, 'secret')}
           </p>
         </li>

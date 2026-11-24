@@ -13,7 +13,7 @@ import { environmentsQuery, projectQuery } from '@/services/queries';
 import { ProjectFormDialog } from './project-form-dialog';
 
 const tabClass = ({ isActive }: { isActive: boolean }) =>
-  cn('border-b-2 px-4 py-2 whitespace-nowrap', isActive ? 'border-ink text-ink' : 'border-transparent text-dim hover:text-ink');
+  cn('rounded-full px-4 py-1.5 text-sm font-medium whitespace-nowrap', isActive ? 'bg-hover text-ink' : 'text-dim hover:text-ink');
 
 export function Component() {
   const { projectId = '' } = useParams();
@@ -52,12 +52,12 @@ function ProjectView({ project, environmentNames }: { project: ProjectResponse; 
           <Pencil aria-hidden />
           Edit
         </Button>
-        <Button variant="secondary" onClick={() => setDialog('delete')}>
+        <Button variant="ghost" onClick={() => setDialog('delete')}>
           <Trash2 aria-hidden />
           Delete project
         </Button>
       </PageHeader>
-      <nav aria-label="Project" className="flex overflow-x-auto border-b border-line">
+      <nav aria-label="Project" className="flex max-w-full gap-1 justify-self-start overflow-x-auto rounded-full bg-ground p-1">
         <NavLink end to={`/projects/${project.id}`} className={tabClass}>
           Overview
         </NavLink>
