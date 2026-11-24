@@ -1,0 +1,11 @@
+**/node_modules
+**/dist
+**/generated
+**/coverage
+.git
+.env
+.env.*
+.cache
+.claude
+.superpowers
+docs

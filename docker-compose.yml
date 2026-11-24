@@ -1,0 +1,81 @@
+name: ${COMPOSE_PROJECT_NAME:-minivault}
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: minivault
+      POSTGRES_DB: minivault
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run scripts/init-env.sh first}
+    volumes: [postgres-data:/var/lib/postgresql]
+    networks: [data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -h 127.0.0.1 -U minivault]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  secrets-engine:
+    build: services/secrets-engine
+    environment:
+      ENGINE_AUTH_TOKEN: ${ENGINE_AUTH_TOKEN:?Run scripts/init-env.sh first}
+      MASTER_KEYS: ${MASTER_KEYS:?Run scripts/init-env.sh first}
+      ACTIVE_KEY_VERSION: ${ACTIVE_KEY_VERSION:?Run scripts/init-env.sh first}
+    networks: [crypto]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: [CMD, /server, -healthcheck]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  api:
+    build: { context: ., dockerfile: apps/api/Dockerfile }
+    environment: &api-environment
+      NODE_ENV: production
+      DATABASE_URL: postgresql://minivault:${POSTGRES_PASSWORD:?Run scripts/init-env.sh first}@postgres:5432/minivault
+      JWT_SECRET: ${JWT_SECRET:?Run scripts/init-env.sh first}
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:8080}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      ENGINE_URL: http://secrets-engine:8081
+      ENGINE_AUTH_TOKEN: ${ENGINE_AUTH_TOKEN:?Run scripts/init-env.sh first}
+    depends_on:
+      postgres: { condition: service_healthy }
+      secrets-engine: { condition: service_healthy }
+    networks: [app, data, crypto]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/health').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  web:
+    build: { context: ., dockerfile: apps/web/Dockerfile }
+    ports: ["${WEB_PORT:-8080}:8080"]
+    depends_on:
+      api: { condition: service_healthy }
+    networks: [edge, app]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, "http://127.0.0.1:8080/"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+networks:
+  edge: {}
+  app: { internal: true }
+  data: { internal: true }
+  crypto: { internal: true }
+
+volumes:
+  postgres-data: {}
