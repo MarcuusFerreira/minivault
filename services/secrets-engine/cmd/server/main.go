@@ -11,7 +11,12 @@ import (
 	"syscall"
 	"time"
 
+	decryptsecret "github.com/minivault/secrets-engine/internal/cryptographic-operations/application/usecases/decrypt-secret"
+	encryptsecret "github.com/minivault/secrets-engine/internal/cryptographic-operations/application/usecases/encrypt-secret"
 	"github.com/minivault/secrets-engine/internal/cryptographic-operations/infrastructure/adapters/input/http/routes"
+	"github.com/minivault/secrets-engine/internal/cryptographic-operations/infrastructure/adapters/output/aesgcm"
+	keymanagement "github.com/minivault/secrets-engine/internal/cryptographic-operations/infrastructure/adapters/output/key-management"
+	"github.com/minivault/secrets-engine/internal/cryptographic-operations/infrastructure/adapters/output/nonce"
 	"github.com/minivault/secrets-engine/internal/cryptographic-operations/infrastructure/config"
 	"github.com/minivault/secrets-engine/internal/cryptographic-operations/infrastructure/server"
 )
@@ -35,11 +40,23 @@ func run(logger *slog.Logger) error {
 	if err != nil {
 		return fmt.Errorf("invalid configuration: %w", err)
 	}
+	keys, err := keymanagement.NewStaticKeyProvider(cfg.MasterKeys, cfg.ActiveKeyVersion)
+	if err != nil {
+		return fmt.Errorf("invalid keys: %w", err)
+	}
+	cipher := aesgcm.New()
+	handler := routes.New(routes.Dependencies{
+		AuthToken: cfg.AuthToken,
+		Encrypt:   encryptsecret.New(cipher, keys, nonce.Random{}),
+		Decrypt:   decryptsecret.New(cipher, keys),
+		Logger:    logger,
+	})
+
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
 	logger.Info("engine starting", "addr", cfg.Addr, "activeKeyVersion", cfg.ActiveKeyVersion)
-	return server.Run(ctx, cfg.Addr, routes.New(routes.Dependencies{}))
+	return server.Run(ctx, cfg.Addr, handler)
 }
 
 // healthcheck exists because the distroless image has no shell or HTTP client.
