@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import request from 'supertest';
 import { createTestApp, type TestApp } from './support/app.js';
 import { resetDatabase } from './support/database.js';
@@ -51,6 +52,17 @@ describe('machine access', () => {
     expect(res.headers['cache-control']).toBe('no-store');
     await client({ 'X-API-Key': key }).get('/api/v1/machine/secrets?environment=QA').expect(400);
     await client({ 'X-API-Key': key }).get('/api/v1/machine/secrets?environment=STAGING').expect(403);
+  });
+
+  it('reads chosen keys of an environment too large to read at once', async () => {
+    const { key } = await issue({ PRODUCTION: ['SECRETS_READ'] });
+    const template = await t.prisma.secret.findUniqueOrThrow({ where: { id: secretId } });
+    await t.prisma.secret.createMany({ data: Array.from({ length: 100 }, (_, i) => ({ ...template, id: randomUUID(), key: `FILL_${i}` })) });
+    const all = await client({ 'X-API-Key': key }).get(MACHINE);
+    expect([all.status, all.body.error.code]).toEqual([422, 'TOO_MANY_SECRETS']);
+    const chosen = await client({ 'X-API-Key': key }).get(`${MACHINE}&keys=DB_URL`);
+    expect(chosen.status).toBe(200);
+    expect(chosen.body.secrets).toEqual({ DB_URL: 'postgres://x' });
   });
 
   it('lets keys be named __proto__ without surprises', async () => {

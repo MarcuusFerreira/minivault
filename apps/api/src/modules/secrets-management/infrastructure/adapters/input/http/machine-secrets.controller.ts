@@ -21,7 +21,11 @@ export class MachineSecretsController {
     @Ctx() context: RequestContext,
     @Query({ schema: machineSecretsQuery }) query: MachineSecretsQuery,
   ): Promise<MachineSecretsResponse> {
-    const secrets = await this.retrieveEnvironmentSecrets.execute({ context, environmentName: query.environment });
+    const secrets = await this.retrieveEnvironmentSecrets.execute({
+      context,
+      environmentName: query.environment,
+      keys: query.keys?.split(',') ?? null,
+    });
     return { environment: query.environment, secrets: Object.fromEntries(secrets.map(({ key, value }) => [key, value])) };
   }
 }

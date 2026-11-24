@@ -16,7 +16,8 @@ export type CreateSecretRequest = z.infer<typeof createSecretRequest>;
 export const updateSecretRequest = z.strictObject({ value: secretValue });
 export type UpdateSecretRequest = z.infer<typeof updateSecretRequest>;
 
-export const secretValuesQuery = z.strictObject({ keys: z.string().min(1).max(13000).optional() });
+const keyList = z.string().min(1).max(13000).optional();
+export const secretValuesQuery = z.strictObject({ keys: keyList });
 export type SecretValuesQuery = z.infer<typeof secretValuesQuery>;
 
 export interface SecretMetadataResponse {
@@ -28,7 +29,7 @@ export interface SecretMetadataResponse {
 }
 export type SecretValueResponse = SecretMetadataResponse & { value: string };
 
-export const machineSecretsQuery = z.strictObject({ environment: environmentName });
+export const machineSecretsQuery = z.strictObject({ environment: environmentName, keys: keyList });
 export type MachineSecretsQuery = z.infer<typeof machineSecretsQuery>;
 
 export interface MachineSecretsResponse {

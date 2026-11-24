@@ -22,11 +22,11 @@ Base path `/api/v1`. Interactive reference at `/api/docs`, OpenAPI document at `
 | `GET .../secrets/values?keys=A,B` | read |
 | `GET .../secrets/:secretId` | read |
 | `PATCH, DELETE .../secrets/:secretId` | write |
-| `GET /machine/secrets?environment=PRODUCTION` | read, API key only |
+| `GET /machine/secrets?environment=PRODUCTION&keys=A,B` | read, API key only |
 | `GET, POST /projects/:projectId/api-keys`, `POST .../:apiKeyId/rotate`, `DELETE .../:apiKeyId` | no |
 | `GET /audit-logs?projectId&action&cursor&limit` | no |
 
-Listing secrets returns metadata only. Reading several values is all or nothing, at most 100.
+Listing secrets returns metadata only. Reading several values is all or nothing, at most 100; `keys` is optional and selects some.
 
 Outside the base path: `GET /health` (alive) and, inside the network only, `GET /ready` (database and engine).
 
