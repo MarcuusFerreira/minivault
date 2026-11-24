@@ -1,0 +1,9 @@
+/** A violated business rule. Messages must never contain secret material. */
+export abstract class DomainError extends Error {
+  abstract readonly code: string;
+
+  constructor(message: string) {
+    super(message);
+    this.name = new.target.name;
+  }
+}

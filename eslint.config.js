@@ -2,7 +2,7 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['**/dist/**', '**/generated/**', '**/fixtures/**', '**/*.cjs', '**/*.js'] },
+  { ignores: ['**/prisma.config.ts', '**/dist/**', '**/generated/**', '**/fixtures/**', '**/*.cjs', '**/*.js'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

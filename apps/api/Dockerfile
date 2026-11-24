@@ -9,6 +9,12 @@ COPY packages/contracts packages/contracts
 COPY apps/api apps/api
 RUN npm run build -w packages/contracts && npm run build -w apps/api
 
+# One-shot migration image: keeps the Prisma CLI out of the runtime image.
+FROM build AS migrate
+WORKDIR /app/apps/api
+USER node
+CMD ["npx", "prisma", "migrate", "deploy"]
+
 FROM node:24-alpine AS production-deps
 WORKDIR /app
 COPY package.json package-lock.json ./

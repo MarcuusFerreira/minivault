@@ -33,6 +33,15 @@ services:
       retries: 20
     restart: unless-stopped
 
+  migrate:
+    build: { context: ., dockerfile: apps/api/Dockerfile, target: migrate }
+    environment:
+      DATABASE_URL: postgresql://minivault:${POSTGRES_PASSWORD:?Run scripts/init-env.sh first}@postgres:5432/minivault
+    depends_on:
+      postgres: { condition: service_healthy }
+    networks: [data]
+    restart: "no"
+
   api:
     build: { context: ., dockerfile: apps/api/Dockerfile }
     environment: &api-environment
@@ -45,6 +54,7 @@ services:
       ENGINE_AUTH_TOKEN: ${ENGINE_AUTH_TOKEN:?Run scripts/init-env.sh first}
     depends_on:
       postgres: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
       secrets-engine: { condition: service_healthy }
     networks: [app, data, crypto]
     cap_drop: [ALL]
