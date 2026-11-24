@@ -117,6 +117,8 @@ Outside the prefix: `/health` (liveness), `/ready` (database + engine), neither 
 
 Skills: `frontend-design` and `vercel-react-best-practices` (SPA-relevant rules; no Next.js/server rules).
 
+> **Superseded:** after review the owner found the Industrial anchor too square. The interface now uses slate surfaces separated by tone, soft corners, Instrument Sans, and IBM Plex Mono only for code. The differentiator below is unchanged, except that the indicator is a floating pill and the amber is `#FFB84D`.
+
 **Anchor: Industrial.** The brief fixes dark-first, minimalist and developer-oriented, so the unexpectedness goes into the signal rather than the surface. Warm-black `#0B0C0A`, IBM Plex Mono everywhere (self-hosted), 1 px borders, zero radius, no shadows, no grain, tabular numerics. shadcn primitives are restyled to those tokens.
 
 **Differentiator: color means exposure.** Amber `#FFB800` is the only color in the interface and appears only while plaintext is on screen: a revealed secret row, a newly created API key, and a header counter ("2 values revealed") whose button hides them all. At rest the product is monochrome. Errors and destructive actions use icon + text + inverted contrast, never hue. Focus rings are white.

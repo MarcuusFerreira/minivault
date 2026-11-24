@@ -49,7 +49,7 @@ Only `web` publishes a port. Both backends follow DDD and Hexagonal Architecture
 | ![A revealed secret](docs/screenshots/secrets-revealed.png) | ![API key form](docs/screenshots/api-key-form.png) |
 | ![API keys](docs/screenshots/api-keys.png) | ![Audit log](docs/screenshots/audit.png) |
 
-The interface is monochrome. Amber appears only while plaintext is on screen.
+The interface is neutral. Amber appears only while plaintext is on screen.
 
 ## Prerequisites
 
