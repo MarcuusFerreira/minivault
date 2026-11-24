@@ -58,7 +58,7 @@ export function AppShell() {
           </div>
         </aside>
         <div className="min-w-0">
-          <header className="sticky top-0 z-30 flex min-h-13 items-center justify-end border-b border-line bg-ground px-4 py-2 md:px-8">
+          <header className="max-md:not-has-[button]:sr-only sticky top-0 z-30 flex min-h-13 items-center justify-end border-b border-line bg-ground px-4 py-2 md:px-8">
             <ExposureIndicator />
           </header>
           <main id="main" tabIndex={-1} className="mx-auto grid max-w-6xl gap-8 p-4 outline-none md:p-8">

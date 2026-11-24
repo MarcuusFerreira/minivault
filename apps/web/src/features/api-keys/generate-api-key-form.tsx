@@ -77,7 +77,7 @@ export function GenerateApiKeyForm({ projectId, environments, onCancel, onGenera
               <label key={permission} className="flex items-center gap-2">
                 <input
                   type="checkbox"
-                  className="size-4 accent-ink"
+                  className="size-4 appearance-none border border-line-strong bg-ground checked:border-ink checked:bg-ink checked:bg-[url(/check.svg)] checked:bg-center checked:bg-no-repeat"
                   aria-label={`${name} ${label}`}
                   value={`${id}:${permission}`}
                   {...register('permissions', { validate: (selected) => selected.length > 0 })}
