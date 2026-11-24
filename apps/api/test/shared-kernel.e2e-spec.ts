@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { randomUUID } from 'node:crypto';
 import request from 'supertest';
+import { EngineProbe } from '../src/shared/infrastructure/health/engine-probe.js';
 import { HealthController } from '../src/shared/infrastructure/health/health.controller.js';
 import { PrismaContext } from '../src/shared/infrastructure/prisma/prisma-context.js';
 import { PrismaService, isUniqueViolation } from '../src/shared/infrastructure/prisma/prisma.service.js';
@@ -100,11 +101,19 @@ describe('shared kernel', () => {
     await request(t.http).get('/health').expect(200, { status: 'ok' });
   });
 
-  it('is not ready when the database is unreachable', async () => {
-    const broken = new PrismaService('postgresql://x:x@127.0.0.1:1/x');
+  it('is ready when both dependencies answer', async () => {
+    await request(t.http).get('/ready').expect(200, { status: 'ok' });
+  });
+
+  it.each(['database', 'engine'])('is not ready, but alive, without the %s', async (down) => {
+    const prisma = down === 'database' ? new PrismaService('postgresql://x:x@127.0.0.1:1/x') : t.prisma;
+    const engine = { check: () => (down === 'engine' ? Promise.reject(new Error('down')) : Promise.resolve()) };
     const module = await Test.createTestingModule({
       controllers: [HealthController],
-      providers: [{ provide: PrismaService, useValue: broken }],
+      providers: [
+        { provide: PrismaService, useValue: prisma },
+        { provide: EngineProbe, useValue: engine },
+      ],
     }).compile();
     const app = module.createNestApplication();
     await app.init();
