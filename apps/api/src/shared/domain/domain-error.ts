@@ -7,3 +7,6 @@ export abstract class DomainError extends Error {
     this.name = new.target.name;
   }
 }
+
+/** A business rule violated because of existing state, for example a duplicate name. */
+export abstract class DomainConflictError extends DomainError {}

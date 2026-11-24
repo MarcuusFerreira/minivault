@@ -1,17 +1,32 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { APP_FILTER } from '@nestjs/core';
-import { envSchema } from './config/env.js';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { type Env, envSchema } from './config/env.js';
+import { IdentityAccessModule } from './modules/identity-access/identity-access.module.js';
 import { HealthController } from './shared/infrastructure/health/health.controller.js';
+import { AuthGuard } from './shared/infrastructure/http/auth/auth.guard.js';
 import { ErrorFilter } from './shared/infrastructure/http/error.filter.js';
 import { SharedKernelModule } from './shared/infrastructure/shared-kernel.module.js';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, ignoreEnvFile: true, validationSchema: envSchema }),
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService<Env, true>) => ({
+        throttlers: [{ ttl: 60_000, limit: config.get('THROTTLE_LIMIT', { infer: true }) }],
+      }),
+    }),
     SharedKernelModule,
+    IdentityAccessModule,
   ],
   controllers: [HealthController],
-  providers: [{ provide: APP_FILTER, useClass: ErrorFilter }],
+  providers: [
+    { provide: APP_FILTER, useClass: ErrorFilter },
+    // Throttling comes first, so guessed credentials are counted too.
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: AuthGuard },
+  ],
 })
 export class AppModule {}

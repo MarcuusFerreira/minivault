@@ -2,7 +2,7 @@ import { type ArgumentsHost, Catch, type ExceptionFilter, HttpException, HttpSta
 import type { ErrorResponse } from '@minivault/contracts';
 import type { Response } from 'express';
 import { ApplicationError, type ApplicationErrorKind } from '../../application/application-error.js';
-import { DomainError } from '../../domain/domain-error.js';
+import { DomainConflictError, DomainError } from '../../domain/domain-error.js';
 
 interface MappedError {
   status: number;
@@ -40,7 +40,7 @@ export function mapError(error: unknown): MappedError {
     return { status: STATUS_BY_KIND[error.kind], code: error.code, message: error.message };
   }
   if (error instanceof DomainError) {
-    return { status: 400, code: error.code, message: error.message };
+    return { status: error instanceof DomainConflictError ? 409 : 400, code: error.code, message: error.message };
   }
   const details = validationDetails(error);
   if (details) {
@@ -64,10 +64,8 @@ function validationDetails(error: unknown): MappedError['details'] {
   if (!Array.isArray(messages)) return undefined;
   return messages.map((raw: unknown) => {
     const text = String(raw);
-    const separator = text.indexOf(': ');
-    return separator === -1
-      ? { path: '', message: text }
-      : { path: text.slice(0, separator), message: text.slice(separator + 2) };
+    const located = /^([\w.[\]]+): (.*)$/s.exec(text);
+    return located ? { path: located[1] ?? '', message: located[2] ?? '' } : { path: '', message: text };
   });
 }
 

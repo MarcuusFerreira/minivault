@@ -7,3 +7,4 @@ export interface ErrorResponse {
     details?: { path: string; message: string }[];
   };
 }
+export * from './auth.js';

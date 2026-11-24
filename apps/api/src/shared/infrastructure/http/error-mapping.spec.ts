@@ -42,6 +42,11 @@ describe('mapError', () => {
     });
   });
 
+  it('keeps a root-level failure whole', () => {
+    const error = new BadRequestException({ statusCode: 400, message: ['Unrecognized key: "role"'] });
+    expect(mapError(error).details).toEqual([{ path: '', message: 'Unrecognized key: "role"' }]);
+  });
+
   it('never repeats a body parser message, which quotes the input', () => {
     const mapped = mapError(new BadRequestException('Unexpected token s in JSON: "s3cret"'));
     expect(JSON.stringify(mapped)).not.toContain('s3cret');
