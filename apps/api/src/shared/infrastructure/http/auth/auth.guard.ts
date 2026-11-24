@@ -1,4 +1,4 @@
-import { type CanActivate, type ExecutionContext, Inject, Injectable, Optional } from '@nestjs/common';
+import { type CanActivate, type ExecutionContext, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
 import type { Env } from '../../../../config/env.js';
@@ -28,7 +28,7 @@ export class AuthGuard implements CanActivate {
     private readonly reflector: Reflector,
     config: ConfigService<Env, true>,
     @Inject(USER_AUTHENTICATOR) private readonly users: UserAuthenticator,
-    @Optional() @Inject(API_KEY_AUTHENTICATOR) private readonly apiKeys?: ApiKeyAuthenticator,
+    @Inject(API_KEY_AUTHENTICATOR) private readonly apiKeys: ApiKeyAuthenticator,
   ) {
     this.webOrigin = config.get('WEB_ORIGIN', { infer: true });
   }
@@ -56,7 +56,7 @@ export class AuthGuard implements CanActivate {
   private async authenticate(req: AuthenticatedRequest): Promise<Principal | null> {
     const apiKey = req.headers['x-api-key'];
     if (apiKey !== undefined) {
-      return typeof apiKey === 'string' && this.apiKeys ? this.apiKeys.authenticate(apiKey) : null;
+      return typeof apiKey === 'string' ? this.apiKeys.authenticate(apiKey) : null;
     }
     const authorization = req.headers.authorization;
     if (authorization !== undefined) {
